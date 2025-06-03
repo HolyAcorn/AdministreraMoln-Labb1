@@ -37,7 +37,27 @@ namespace CvWebApi
 
 			app.UseAuthorization();
 
+using (var scope = app.Services.CreateScope()) 
+{ 
+	var context = scope.ServiceProvider.GetRequiredService<CvDbContext>();
+	context.Database.Migrate();
 
+	if (!context.Competencies.Any())
+	{
+		context.Competencies.AddRange(
+			new Competency { Name = "C#", YearsOfExperience = 4, CompetencyLevel = "Advanced" },
+			new Competency { Name = "Godot", YearsOfExperience = 5, CompetencyLevel = "Advanced" }
+			);
+		context.SaveChanges();
+	}
+	if (!context.Projects.Any())
+	{
+		context.Projects.AddRange(
+			new Project { Name = "Test", Type = "C#", Description = "description description", Url = "google.se", StartYear = 2012, EndYear = 2014, Completed = true}
+			);
+		context.SaveChanges();
+	}
+}
 
 			app.MapPost("/api/competency", async (Competency competency, CvDbContext db) =>
 			{
